@@ -1,0 +1,40 @@
+version: '3'
+services:
+  spring01:
+    build: ./lol01
+    ports:
+      - 8081:7000
+    links:
+      - dbpostgres
+
+  spring02:
+    build: ./lol02
+    ports:
+      - 8082:7000
+    links:
+      - dbpostgres
+
+  dbpostgres:
+    image: "postgres:9.6-alpine"
+    container_name: dbpostgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=loldb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - "./data:/var/lib/postgresql/data"
+
+  nginx:
+    build: ./
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - spring01
+      - spring02
+
+volumes:
+  data:
